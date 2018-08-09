@@ -2,6 +2,8 @@
 
 Small demo using react-native to find the angle of a gradient.
 
+![IOS Screengrab](src/assets/gradient_sh.png)
+
 ### To Run:
 * Clone repo
 * CD into repo folder
