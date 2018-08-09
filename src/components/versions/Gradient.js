@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 
 import {StyleSheet, Animated, Button, View} from 'react-native';
 import Svg, { Circle, Path, Line, LinearGradient, Defs, Rect, Stop } from 'react-native-svg';
-import CSSDisplay from "./CSSDisplay";
+import CSSDisplay from "./components/CSSDisplay";
 
 // Path is from react-native-svg not react-native, so we need to declare it.
 AnimatedPath = Animated.createAnimatedComponent(Path);
@@ -94,7 +94,7 @@ class Gradient extends Component {
       const yPoint = this.state.yDataPoints[index];
 
       this.setState({
-        degrees: Math.floor(Math.atan2(this.state.pointEnd.y - yPoint, this.state.pointEnd.x - xPoint) * 180 / Math.PI),
+        degrees: Math.ceil(Math.atan2(this.state.pointEnd.y - yPoint, this.state.pointEnd.x - xPoint) * 180 / Math.PI),
         pointStart: {
           x: xPoint,
           y: yPoint
