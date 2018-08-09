@@ -23,6 +23,7 @@ class Gradient extends Component {
         x: 125,
         y: 0
       },
+      duration: 10000,
       rotation: new Animated.Value(0),
       animationData: null
     };
@@ -32,7 +33,7 @@ class Gradient extends Component {
     // Setting animate speed
     Animated.timing(this.state.rotation, {
       toValue: 1,
-      duration: 36000,
+      duration: this.state.duration,
     }).start();
   }
 
@@ -64,7 +65,7 @@ class Gradient extends Component {
     return data;
   };
 
-
+  // TODO: Figure out how to control the animation with a drag/drop trigger...
   handleTriggerClick = () => {
     let dataRange = [];
     let stepRange = [];
@@ -84,18 +85,22 @@ class Gradient extends Component {
     }, this.calcDegrees);
   };
 
+  /*
+    TODO: This works... but because of Async, we only get the last point... figure out how to smoothly display ALL values...
+    sync it with the animation, or nix the animation and just base things on where a point is dropped in the area...
+  */
   calcDegrees = () => {
     this.state.xDataPoints.map((xPoint, index) => {
       const yPoint = this.state.yDataPoints[index];
 
       this.setState({
-        degrees: Math.atan2(this.state.pointEnd.y - yPoint, this.state.pointEnd.x - xPoint) * 180 / Math.PI,
+        degrees: Math.floor(Math.atan2(this.state.pointEnd.y - yPoint, this.state.pointEnd.x - xPoint) * 180 / Math.PI),
         pointStart: {
           x: xPoint,
           y: yPoint
         }
       });
-    })
+    });
   };
 
   render() {
@@ -126,7 +131,7 @@ class Gradient extends Component {
               fill="transparent"
             />
 
-            {/*Make sure there is data to animate*/}
+            {/*Make sure there is data to animate... also may not need this when we get drag/drop in*/}
             {animationData &&
               <AnimatedPath d={animationData} stroke="white" strokeWidth={5} fill="none"/>}
 
