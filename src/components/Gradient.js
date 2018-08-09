@@ -4,6 +4,7 @@ import {StyleSheet, Animated, Easing, Button, View} from 'react-native';
 import Svg, { Circle, Path, Line, LinearGradient, Defs, Rect, Stop } from 'react-native-svg';
 import CSSDisplay from "./CSSDisplay";
 
+// Path is from react-native-svg not react-native, so we need to declare it.
 AnimatedPath = Animated.createAnimatedComponent(Path);
 
 class Gradient extends Component {
@@ -11,25 +12,79 @@ class Gradient extends Component {
     super();
 
     this.state = {
-      degrees: 0,
+      degrees: 360,
+      xDataPoints: [],
+      yDataPoints: [],
       pointStart: {
-        x: 0,
+        x: 125,
         y: 0
       },
       pointEnd: {
-        x: 0,
-        y: 125
+        x: 125,
+        y: 0
       },
-      rotation: new Animated.Value(0)
+      rotation: new Animated.Value(0),
+      animationData: null
     };
   }
 
   componentDidMount(){
+    // Setting animate speed
     Animated.timing(this.state.rotation,{
       toValue:1,
       duration:10000,
     }).start()
   }
+
+  // SVGS need angles to be translated to points
+  calculateArcPoint = (centerX, centerY, radius, angleInDegrees) => {
+    const angleInRadians = (angleInDegrees-90) * Math.PI / 180.0;
+
+    return {
+      x: centerX + (radius * Math.cos(angleInRadians)),
+      y: centerY + (radius * Math.sin(angleInRadians))
+    };
+  };
+
+  // Gets the path of the circle
+  getArcData = (x, y, radius, startAngle, endAngle) => {
+    const start = this.calculateArcPoint(x, y, radius, endAngle);
+    const end = this.calculateArcPoint(x, y, radius, startAngle);
+    const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+
+    let data = [
+      "M", start.x, start.y,
+      "A", radius, radius, 0, largeArcFlag, 0, end.x, end.y
+    ].join(" ");
+
+    this.setState({
+      pointStart: {
+        x: start.x,
+        y: start.y
+      }
+    });
+
+    return data;
+  };
+
+  handleTriggerClick = () => {
+    let dataRange = [];
+    let stepRange = [];
+    let steps = 359; // We need to stop at 359 because 360 would end up being 0 again.
+
+    for (var i = 0; i<steps; i++){
+      dataRange.push(this.getArcData(125, 125, 125, 0, i));
+      stepRange.push(i/(steps-1));
+    }
+
+    // Setting data to state - we interpolate to change the data with the new path progress
+    this.setState({
+      animationData: this.state.rotation.interpolate({
+        inputRange: stepRange,
+        outputRange: dataRange
+      })
+    });
+  };
 
   // calcDegrees = () => {
   //   const degrees = Math.atan2(this.state.yAxis.x - this.state.xAxis.y, this.state.yAxis.x - this.state.xAxis.x) * 180 / Math.PI;
@@ -40,45 +95,8 @@ class Gradient extends Component {
   // };
 
   render() {
-    const { pointStart, pointEnd, degrees } = this.state;
-
-    function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
-      var angleInRadians = (angleInDegrees-90) * Math.PI / 180.0;
-
-      return {
-        x: centerX + (radius * Math.cos(angleInRadians)),
-        y: centerY + (radius * Math.sin(angleInRadians))
-      };
-    }
-
-    function describeArc(x, y, radius, startAngle, endAngle){
-
-      var start = polarToCartesian(x, y, radius, endAngle);
-      var end = polarToCartesian(x, y, radius, startAngle);
-
-      var largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
-
-      var d = [
-        "M", start.x, start.y,
-        "A", radius, radius, 0, largeArcFlag, 0, end.x, end.y
-      ].join(" ");
-
-      return d;
-    }
-
-    let R = 125;
-    let dRange = [];
-    let iRange = [];
-    let steps = 359;
-    for (var i = 0; i<steps; i++){
-      dRange.push(describeArc(125, 125, 125, 0, i));
-      iRange.push(i/(steps-1));
-    }
-
-    var _d = this.state.rotation.interpolate({
-      inputRange: iRange,
-      outputRange: dRange
-    })
+    const { pointStart, pointEnd, animationData, degrees } = this.state;
+    const radius = 125;
 
     return (
       <View style={styles.container}>
@@ -86,8 +104,9 @@ class Gradient extends Component {
           <Svg
             height="250"
             width="250">
+
             <Defs>
-              <LinearGradient id="grad" x1={pointStart.x} y1={pointStart.y} x2={pointEnd.x} y2={pointEnd.y}>
+              <LinearGradient id="grad" x1={`${pointStart.x}`} y1={`${pointStart.y}`} x2={`${pointEnd.x}`} y2={`${pointEnd.y}`}>
                 <Stop offset="0" stopColor="#777" stopOpacity="1" />
                 <Stop offset="1" stopColor="#f74902" stopOpacity="1" />
               </LinearGradient>
@@ -95,15 +114,17 @@ class Gradient extends Component {
             <Rect x="0" y="0" width="250" height="250" fill="url(#grad)" />
 
             <Circle
-              cx={R}
-              cy={R}
-              r={R}
+              cx={radius}
+              cy={radius}
+              r={radius}
               stroke="transparent"
               strokeWidth="0"
               fill="transparent"
             />
 
-            <AnimatedPath d={_d} stroke="white" strokeWidth={5} fill="none"/>
+            {/*Make sure there is data to animate*/}
+            {animationData &&
+              <AnimatedPath d={animationData} stroke="white" strokeWidth={5} fill="none"/>}
 
             <Line
               x1="0"
@@ -115,8 +136,11 @@ class Gradient extends Component {
               strokeWidth="5" />
           </Svg>
         </Animated.View>
-        {/*<Button onPress={this.rotateAxis} title={'ACK'} />*/}
-        {/*<CSSDisplay degrees={this.state.degrees} />*/}
+
+        {/* We need a button right not to trigger the state changes. */}
+        <Button onPress={this.handleTriggerClick} title={'Trigger'} />
+
+        <CSSDisplay degrees={this.state.degrees} />
       </View>
     );
   }
@@ -139,12 +163,6 @@ const styles = StyleSheet.create({
     borderColor: "#000",
     borderWidth: 1,
     borderStyle: 'solid'
-  },
-  axis: {
-    position: 'absolute',
-    height: 125,
-    width: 5,
-    backgroundColor: '#fff'
   }
 });
 
