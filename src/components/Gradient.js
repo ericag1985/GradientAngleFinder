@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 
-import {StyleSheet, Animated, Easing, Button, View} from 'react-native';
+import {StyleSheet, Animated, Button, View} from 'react-native';
 import Svg, { Circle, Path, Line, LinearGradient, Defs, Rect, Stop } from 'react-native-svg';
 import CSSDisplay from "./CSSDisplay";
 
@@ -12,7 +12,7 @@ class Gradient extends Component {
     super();
 
     this.state = {
-      degrees: 360,
+      degrees: 0,
       xDataPoints: [],
       yDataPoints: [],
       pointStart: {
@@ -39,12 +39,17 @@ class Gradient extends Component {
   // SVGS need angles to be translated to points
   calculateArcPoint = (centerX, centerY, radius, angleInDegrees) => {
     const angleInRadians = (angleInDegrees-90) * Math.PI / 180.0;
+    const x = centerX + (radius * Math.cos(angleInRadians));
+    const y = centerY + (radius * Math.sin(angleInRadians));
 
-    return {
-      x: centerX + (radius * Math.cos(angleInRadians)),
-      y: centerY + (radius * Math.sin(angleInRadians))
-    };
+    // this.setState((prevState) => ({
+    //   xDataPoints: [...prevState.xDataPoints, x],
+    //   yDataPoints: [...prevState.yDataPoints, y]
+    // }));
+
+    return { x, y };
   };
+
 
   // Gets the path of the circle
   getArcData = (x, y, radius, startAngle, endAngle) => {
@@ -57,12 +62,10 @@ class Gradient extends Component {
       "A", radius, radius, 0, largeArcFlag, 0, end.x, end.y
     ].join(" ");
 
-    this.setState({
-      pointStart: {
-        x: start.x,
-        y: start.y
-      }
-    });
+    this.setState((prevState) => ({
+      xDataPoints: [...prevState.xDataPoints, start.x],
+      yDataPoints: [...prevState.yDataPoints, start.y]
+    }));
 
     return data;
   };
