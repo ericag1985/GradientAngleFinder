@@ -30,10 +30,10 @@ class Gradient extends Component {
 
   componentDidMount(){
     // Setting animate speed
-    Animated.timing(this.state.rotation,{
-      toValue:1,
-      duration:10000,
-    }).start()
+    Animated.timing(this.state.rotation, {
+      toValue: 1,
+      duration: 36000,
+    }).start();
   }
 
   // SVGS need angles to be translated to points
@@ -42,14 +42,8 @@ class Gradient extends Component {
     const x = centerX + (radius * Math.cos(angleInRadians));
     const y = centerY + (radius * Math.sin(angleInRadians));
 
-    // this.setState((prevState) => ({
-    //   xDataPoints: [...prevState.xDataPoints, x],
-    //   yDataPoints: [...prevState.yDataPoints, y]
-    // }));
-
     return { x, y };
   };
-
 
   // Gets the path of the circle
   getArcData = (x, y, radius, startAngle, endAngle) => {
@@ -70,6 +64,7 @@ class Gradient extends Component {
     return data;
   };
 
+
   handleTriggerClick = () => {
     let dataRange = [];
     let stepRange = [];
@@ -86,16 +81,22 @@ class Gradient extends Component {
         inputRange: stepRange,
         outputRange: dataRange
       })
-    });
+    }, this.calcDegrees);
   };
 
-  // calcDegrees = () => {
-  //   const degrees = Math.atan2(this.state.yAxis.x - this.state.xAxis.y, this.state.yAxis.x - this.state.xAxis.x) * 180 / Math.PI;
-  //
-  //   this.setState((prevState) => ({
-  //     degrees: degrees
-  //   }))
-  // };
+  calcDegrees = () => {
+    this.state.xDataPoints.map((xPoint, index) => {
+      const yPoint = this.state.yDataPoints[index];
+
+      this.setState({
+        degrees: Math.atan2(this.state.pointEnd.y - yPoint, this.state.pointEnd.x - xPoint) * 180 / Math.PI,
+        pointStart: {
+          x: xPoint,
+          y: yPoint
+        }
+      });
+    })
+  };
 
   render() {
     const { pointStart, pointEnd, animationData, degrees } = this.state;
@@ -143,7 +144,7 @@ class Gradient extends Component {
         {/* We need a button right not to trigger the state changes. */}
         <Button onPress={this.handleTriggerClick} title={'Trigger'} />
 
-        <CSSDisplay degrees={this.state.degrees} />
+        <CSSDisplay degrees={degrees} />
       </View>
     );
   }
