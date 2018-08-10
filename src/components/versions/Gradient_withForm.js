@@ -15,13 +15,16 @@ class Gradient extends Component {
     this.state = {
       degrees: 0,
       pointData: {
-        sx: 125,
+        sx: 0,
         sy: 0,
-        ex: 125,
+        ex: 180,
         ey: 0
       }
     };
   }
+
+  // We need this to make sure the gradient re-renders on state change...
+  key = 0;
 
   handleUpdate = (data) => {
     this.setState((prevState) => ({
@@ -29,12 +32,22 @@ class Gradient extends Component {
         ...prevState.pointData,
         ...data
       }
-    }))
+    }), this.calcDegrees)
+  };
+
+  calcDegrees = () => {
+    const { pointData } = this.state;
+    // Floor to get a whole number for the "css"
+    const degrees = Math.floor(Math.atan2(pointData.ey - pointData.sy, pointData.ex - pointData.sx) * 180 / Math.PI);
+
+    this.setState({
+      degrees: degrees
+    });
   };
 
   render() {
     const { pointData, degrees } = this.state;
-    const radius = 125;
+    // const radius = 125;
 
     return (
       <ScrollView contentContainerStyle={styles.container}>
@@ -43,21 +56,27 @@ class Gradient extends Component {
             height="250"
             width="250">
             <Defs>
-              <LinearGradient id="grad" x1={`${pointData.sx}`} y1={`${pointData.sy}`} x2={`${pointData.ex}`} y2={`${pointData.ey}`}>
+              <LinearGradient
+                id="grad"
+                x1={`${pointData.sx}`}
+                y1={`${pointData.sy}`}
+                x2={`${pointData.ex}`}
+                y2={`${pointData.ey}`}
+                key={this.key++}>
                 <Stop offset="0" stopColor="#777" stopOpacity="1" />
                 <Stop offset="1" stopColor="#f74902" stopOpacity="1" />
               </LinearGradient>
             </Defs>
             <Rect x="0" y="0" width="250" height="250" fill="url(#grad)" />
 
-            <Circle
-              cx={radius}
-              cy={radius}
-              r={radius}
-              stroke="transparent"
-              strokeWidth="0"
-              fill="transparent"
-            />
+            {/*<Circle*/}
+              {/*cx={radius}*/}
+              {/*cy={radius}*/}
+              {/*r={radius}*/}
+              {/*stroke="transparent"*/}
+              {/*strokeWidth="0"*/}
+              {/*fill="transparent"*/}
+            {/*/>*/}
 
             {/*Make sure there is data to animate... also may not need this when we get drag/drop in*/}
             {/*{animationData &&*/}
@@ -69,6 +88,15 @@ class Gradient extends Component {
               x2="250"
               y2="0"
               y="125"
+              stroke="rgba(255, 255, 255, 0.4)"
+              strokeWidth="5" />
+
+            <Line
+              x1="0"
+              y1="0"
+              x2="0"
+              y2="250"
+              x="125"
               stroke="rgba(255, 255, 255, 0.4)"
               strokeWidth="5" />
           </Svg>
@@ -86,7 +114,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    marginTop: 50,
+    marginTop: 30,
     paddingBottom: 50
   },
   gradientContainer: {
