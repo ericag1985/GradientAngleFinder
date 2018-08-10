@@ -2,7 +2,6 @@ import React, {Component} from 'react';
 
 import {StyleSheet, Animated, ScrollView} from 'react-native';
 import Svg, { Circle, Path, Line, LinearGradient, Defs, Rect, Stop, ClipPath, G} from 'react-native-svg';
-import DegreeDisplay from "./components/DegreeDisplay";
 import Form from "./components/Form";
 
 // Path is from react-native-svg not react-native, so we need to declare it.
@@ -115,7 +114,6 @@ class Gradient extends Component {
             {/*Gradient*/}
             <Rect x="0" y="0" width="250" height="250" fill="url(#grad)" />
 
-
             {/*Arc*/}
             {arcData &&
               <G>
@@ -125,8 +123,7 @@ class Gradient extends Component {
                   r={radius}
                   stroke="#fff"
                   strokeWidth="10"
-                  // fill="rgba(255, 255, 255, 0.3)"
-                  fill='transparent'
+                  fill="rgba(255, 255, 255, 0.3)"
                   clipPath={'url(#angle)'}
                   key={this.arcKey++} />
               </G>
