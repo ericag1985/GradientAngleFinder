@@ -1,38 +1,48 @@
 import React, {Component} from 'react';
 
 import {StyleSheet, Animated, ScrollView} from 'react-native';
-import Svg, { Circle, Path, Line, LinearGradient, Defs, Rect, Stop } from 'react-native-svg';
-import CSSDisplay from "./components/CSSDisplay";
+import Svg, { Circle, Path, Line, LinearGradient, Defs, Rect, Stop, ClipPath, G} from 'react-native-svg';
+import DegreeDisplay from "./components/DegreeDisplay";
 import Form from "./components/Form";
 
 // Path is from react-native-svg not react-native, so we need to declare it.
-// AnimatedPath = Animated.createAnimatedComponent(Path);
+// const AnimatedArc = Animated.createAnimatedComponent(Path);
 
 class Gradient extends Component {
   constructor() {
     super();
 
     this.state = {
+      radius: 125,
       degrees: 0,
       pointData: {
-        sx: 0,
-        sy: 0,
-        ex: 180,
+        sx: 125,
+        sy: 125,
+        ex: 125,
         ey: 0
-      }
+      },
+      arcData: null
     };
   }
 
   // We need this to make sure the gradient re-renders on state change...
-  key = 0;
+  gradientKey = 0;
+  arcKey = 0;
 
-  handleUpdate = (data) => {
+
+  // SVGS need angles to be translated to points
+  calculateArcPoint = (centerX, centerY, radius, angleInDegrees) => {
+    const angleInRadians = (angleInDegrees-90) * Math.PI / 180.0;
+    const x = Math.floor(centerX + (radius * Math.cos(angleInRadians)));
+    const y = Math.floor(centerY + (radius * Math.sin(angleInRadians)));
+
     this.setState((prevState) => ({
       pointData: {
         ...prevState.pointData,
-        ...data
+        sx: x,
+        sy: y
       }
-    }), this.calcDegrees)
+    }))
   };
 
   calcDegrees = () => {
@@ -42,12 +52,42 @@ class Gradient extends Component {
 
     this.setState({
       degrees: degrees
-    });
+    })
+  };
+
+  // // Gets the path of the circle
+  // getArcData = (x, y, radius, startAngle, endAngle) => {
+  //   const start = this.calculateArcPoint(x, y, radius, endAngle);
+  //   const end = this.calculateArcPoint(x, y, radius, startAngle);
+  //   const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+  //
+  //   let data = [
+  //     "M", start.x, start.y,
+  //     "A", radius, radius, 0, largeArcFlag, 0, end.x, end.y
+  //   ].join(" ");
+  //
+  //   this.setState({
+  //     arcData: data
+  //   })
+  // };
+
+  handleUpdatePointState = (data) => {
+    this.setState((prevState) => ({
+      pointData: {
+        ...prevState.pointData,
+        ...data
+      }
+    }), this.calcDegrees)
+  };
+
+  handleUpdateDegreeState = (data) => {
+    this.setState({
+      degrees: data
+    }, this.calculateArcPoint(180, 180, this.state.radius, data))
   };
 
   render() {
-    const { pointData, degrees } = this.state;
-    // const radius = 125;
+    const { pointData, degrees, radius, arcData } = this.state;
 
     return (
       <ScrollView contentContainerStyle={styles.container}>
@@ -62,25 +102,43 @@ class Gradient extends Component {
                 y1={`${pointData.sy}`}
                 x2={`${pointData.ex}`}
                 y2={`${pointData.ey}`}
-                key={this.key++}>
+                key={this.gradientKey++}>
                 <Stop offset="0" stopColor="#777" stopOpacity="1" />
                 <Stop offset="1" stopColor="#f74902" stopOpacity="1" />
               </LinearGradient>
+
+              {arcData &&
+                <ClipPath id={'angle'}>
+                  <Path d={arcData} />
+                </ClipPath>
+              }
             </Defs>
+
+            {/*Gradient*/}
             <Rect x="0" y="0" width="250" height="250" fill="url(#grad)" />
 
-            {/*<Circle*/}
-              {/*cx={radius}*/}
-              {/*cy={radius}*/}
-              {/*r={radius}*/}
-              {/*stroke="transparent"*/}
-              {/*strokeWidth="0"*/}
-              {/*fill="transparent"*/}
-            {/*/>*/}
 
-            {/*Make sure there is data to animate... also may not need this when we get drag/drop in*/}
-            {/*{animationData &&*/}
-              {/*<AnimatedPath d={animationData} stroke="white" strokeWidth={5} fill="none"/>}*/}
+            {/*Arc*/}
+            {arcData &&
+              <G>
+                <Circle
+                  cx={radius}
+                  cy={radius}
+                  r={radius}
+                  stroke="#fff"
+                  strokeWidth="10"
+                  // fill="rgba(255, 255, 255, 0.3)"
+                  fill='transparent'
+                  clipPath={'url(#angle)'}
+                  key={this.arcKey++} />
+              </G>
+            }
+            <Circle
+              cx={pointData.sx}
+              cy={pointData.sy}
+              r="5"
+              fill="white"
+            />
 
             <Line
               x1="0"
@@ -102,9 +160,13 @@ class Gradient extends Component {
           </Svg>
         </Animated.View>
 
-        <CSSDisplay degrees={degrees} />
-
-        <Form sx={pointData.sx} sy={pointData.sy} ex={pointData.ex} ey={pointData.ey} updatePointState={this.handleUpdate} />
+        <Form
+          sx={pointData.sx}
+          sy={pointData.sy}
+          degrees={degrees}
+          updatePointState={this.handleUpdatePointState}
+          updateDegreeState={this.handleUpdateDegreeState}
+        />
       </ScrollView>
     );
   }

@@ -2,10 +2,10 @@ import React, {Component} from 'react';
 
 import {StyleSheet, Animated, Button, View} from 'react-native';
 import Svg, { Circle, Path, Line, LinearGradient, Defs, Rect, Stop } from 'react-native-svg';
-import CSSDisplay from "./components/CSSDisplay";
+import DegreeDisplay from "./components/DegreeDisplay";
 
 // Path is from react-native-svg not react-native, so we need to declare it.
-AnimatedPath = Animated.createAnimatedComponent(Path);
+const AnimatedPath = Animated.createAnimatedComponent(Path);
 
 class Gradient extends Component {
   constructor() {
@@ -149,7 +149,7 @@ class Gradient extends Component {
         {/* We need a button right not to trigger the state changes. */}
         <Button onPress={this.handleTriggerClick} title={'Trigger'} />
 
-        <CSSDisplay degrees={degrees} />
+        <DegreeDisplay degrees={degrees} />
       </View>
     );
   }

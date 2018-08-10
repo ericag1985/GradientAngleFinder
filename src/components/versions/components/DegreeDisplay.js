@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {StyleSheet, View, Text} from 'react-native';
 import PropTypes from 'prop-types';
 
-class CSSDisplay extends Component {
+class DegreeDisplay extends Component {
   static propTypes = {
     degrees: PropTypes.number.isRequired,
   };
@@ -12,7 +12,7 @@ class CSSDisplay extends Component {
 
     return (
       <View>
-        <Text style={styles.css}>linear-gradient({degrees}deg, #777, #f74902)</Text>
+        <Text style={styles.css}>{degrees}&#176;</Text>
       </View>
     );
   }
@@ -32,4 +32,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default CSSDisplay;
+export default DegreeDisplay;
