@@ -28,7 +28,6 @@ class Gradient extends Component {
   gradientKey = 0;
   arcKey = 0;
 
-
   calculateArcPoint = (centerX, centerY, radius, angleInDegrees) => {
     const angleInRadians = (angleInDegrees-90) * Math.PI / 180.0;
     const x = Math.floor(centerX + (radius * Math.cos(angleInRadians)));

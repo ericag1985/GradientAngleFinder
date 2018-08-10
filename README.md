@@ -10,6 +10,7 @@ Small demo using react-native to find the angle of a gradient.
 * Clone repo
 * CD into repo folder
 * `npm install`
+* `react-native link` to link all the libraries to the project
 * IOS - `react-native run-ios`
 * Android - `react-native run-android`
 * `react-devtools` to run the optional dev tools
