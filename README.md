@@ -24,9 +24,12 @@ Small demo using react-native to find the angle of a gradient.
 * [react-native-vector-icons](https://github.com/oblador/react-native-vector-icons)
 * [react-native-svg](https://github.com/react-native-community/react-native-svg)
 * [react-native-text-gradient](https://github.com/iyegoroff/react-native-text-gradient)
+* [react-native-number-input](https://github.com/himelbrand/react-native-numeric-input)
 
 
 **Note: There is a known issue with the text gradient package. To get around this, view [their fix](https://github.com/iyegoroff/react-native-text-gradient#usage-with-rn--0560).**
+
+**Note: There is an issue with the react-native-number-input where you can not currently type in negative numbers. An [issue](https://github.com/himelbrand/react-native-numeric-input/issues/8) has been submitted for this.**
 
 #### TODOs:
 * Have animated path update the css value underneath the gradient.

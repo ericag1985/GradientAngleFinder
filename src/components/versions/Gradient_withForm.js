@@ -17,7 +17,7 @@ class Gradient extends Component {
       degrees: 0,
       pointData: {
         sx: 125,
-        sy: 125,
+        sy: 0,
         ex: 125,
         ey: 0
       },
@@ -30,19 +30,12 @@ class Gradient extends Component {
   arcKey = 0;
 
 
-  // SVGS need angles to be translated to points
   calculateArcPoint = (centerX, centerY, radius, angleInDegrees) => {
     const angleInRadians = (angleInDegrees-90) * Math.PI / 180.0;
     const x = Math.floor(centerX + (radius * Math.cos(angleInRadians)));
     const y = Math.floor(centerY + (radius * Math.sin(angleInRadians)));
 
-    this.setState((prevState) => ({
-      pointData: {
-        ...prevState.pointData,
-        sx: x,
-        sy: y
-      }
-    }))
+    return({ x, y })
   };
 
   calcDegrees = () => {
@@ -55,21 +48,26 @@ class Gradient extends Component {
     })
   };
 
-  // // Gets the path of the circle
-  // getArcData = (x, y, radius, startAngle, endAngle) => {
-  //   const start = this.calculateArcPoint(x, y, radius, endAngle);
-  //   const end = this.calculateArcPoint(x, y, radius, startAngle);
-  //   const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
-  //
-  //   let data = [
-  //     "M", start.x, start.y,
-  //     "A", radius, radius, 0, largeArcFlag, 0, end.x, end.y
-  //   ].join(" ");
-  //
-  //   this.setState({
-  //     arcData: data
-  //   })
-  // };
+  // Gets the path of the circle
+  getArcData = (x, y, radius, startAngle, endAngle) => {
+    const start = this.calculateArcPoint(x, y, radius, endAngle);
+    const end = this.calculateArcPoint(x, y, radius, startAngle);
+    const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+
+    let data = [
+      "M", start.x, start.y,
+      "A", radius, radius, 0, largeArcFlag, 0, end.x, end.y
+    ].join(" ");
+
+    this.setState((prevState) => ({
+      pointData: {
+        ...prevState.pointData,
+        sx: start.x,
+        sy: start.y
+      },
+      arcData: data
+    }))
+  };
 
   handleUpdatePointState = (data) => {
     this.setState((prevState) => ({
@@ -83,7 +81,7 @@ class Gradient extends Component {
   handleUpdateDegreeState = (data) => {
     this.setState({
       degrees: data
-    }, this.calculateArcPoint(180, 180, this.state.radius, data))
+    }, this.getArcData(125, 125, this.state.radius, 0, data))
   };
 
   render() {
@@ -133,10 +131,12 @@ class Gradient extends Component {
                   key={this.arcKey++} />
               </G>
             }
+
+            {/*Angle Indicator*/}
             <Circle
               cx={pointData.sx}
               cy={pointData.sy}
-              r="5"
+              r="10"
               fill="white"
             />
 
