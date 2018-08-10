@@ -45,7 +45,7 @@ class Gradient extends Component {
 
     this.setState({
       degrees: degrees
-    })
+    }, this.getArcData(125, 125, this.state.radius, 0, degrees))
   };
 
   // Gets the path of the circle
@@ -136,7 +136,7 @@ class Gradient extends Component {
             <Circle
               cx={pointData.sx}
               cy={pointData.sy}
-              r="10"
+              r="5"
               fill="white"
             />
 
