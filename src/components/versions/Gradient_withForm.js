@@ -1,11 +1,12 @@
 import React, {Component} from 'react';
 
-import {StyleSheet, Animated, ScrollView} from 'react-native';
+import {StyleSheet, Animated, Easing, ScrollView} from 'react-native';
 import Svg, { Circle, Path, Line, LinearGradient, Defs, Rect, Stop, ClipPath, G} from 'react-native-svg';
 import Form from "./components/Form";
+import Arc from './components/AnimatedArc';
 
 // Path is from react-native-svg not react-native, so we need to declare it.
-// const AnimatedArc = Animated.createAnimatedComponent(Path);
+const AnimatedArc = Animated.createAnimatedComponent(Arc);
 
 class Gradient extends Component {
   constructor() {
@@ -20,13 +21,32 @@ class Gradient extends Component {
         ex: 125,
         ey: 0
       },
-      arcData: null
+      arcData: null,
+      animValue: new Animated.Value(0.1)
     };
   }
 
   // We need this to make sure the gradient re-renders on state change...
   gradientKey = 0;
   arcKey = 0;
+
+  // TODO: Get animation to work...
+  // resetAnimation = () => {
+  //   this.state.animValue.setValue(0.1);
+  // };
+  //
+  // animate = () =>{
+  //   Animated.timing(
+  //     this.state.animValue,
+  //     {
+  //       toValue: 2,
+  //       duration: 2000,
+  //       easing: Easing.inOut(Easing.quad)
+  //     }
+  //   ).start(()=>{
+  //     setTimeout(this.resetAnimation, 2000);
+  //   });
+  // };
 
   positivifyDegrees = (degrees) => {
     var results = 0;
@@ -50,32 +70,40 @@ class Gradient extends Component {
   calcDegrees = () => {
     const { pointData } = this.state;
     // Floor to get a whole number for the "css"
-    const degrees = Math.floor(Math.atan2(pointData.ey - pointData.sy, pointData.ex - pointData.sx) * 180 / Math.PI);
+    // TODO: Need this to be 360 instead of 180 to get correct degrees when using AXIS inputs... verify with Leigh on math...
+    const degrees = Math.floor(Math.atan2(pointData.ey - pointData.sy, pointData.ex - pointData.sx) * 360 / Math.PI);
 
     this.setState({
       degrees: this.positivifyDegrees(degrees)
-    }, this.getArcData(125, 125, this.state.radius, 0, this.state.degrees))
+    }, this.getArcData(125, 125, this.state.radius, 0, this.state.degrees, false))
   };
 
+
   // Gets the path of the circle
-  getArcData = (x, y, radius, startAngle, endAngle) => {
+  getArcData = (x, y, radius, startAngle, endAngle, calculatePoints) => {
     const start = this.calculateArcPoint(x, y, radius, endAngle);
     const end = this.calculateArcPoint(x, y, radius, startAngle);
+
     const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+    const sx = (calculatePoints) ? start.x : this.state.pointData.sx;
+    const sy = (calculatePoints) ? start.y : this.state.pointData.sy;
+    const ex = (calculatePoints) ? end.x : this.state.pointData.ex;
+    const ey = (calculatePoints) ? end.y : this.state.pointData.ey;
 
     let data = [
-      "M", start.x, start.y,
-      "A", radius, radius, 0, largeArcFlag, 0, end.x, end.y
+      "M", sx, sy,
+      "A", radius, radius, 0, largeArcFlag, 0, ex, ey,
+      "L", 125,125
     ].join(" ");
 
     this.setState((prevState) => ({
       pointData: {
         ...prevState.pointData,
-        sx: start.x,
-        sy: start.y
+        sx: sx,
+        sy: sy,
       },
       arcData: data
-    }))
+    }), this.animate);
   };
 
   handleUpdatePointState = (data) => {
@@ -90,11 +118,11 @@ class Gradient extends Component {
   handleUpdateDegreeState = (data) => {
     this.setState({
       degrees: data
-    }, this.getArcData(125, 125, this.state.radius, 0, data))
+    }, this.getArcData(125, 125, this.state.radius, 0, data, true))
   };
 
   render() {
-    const { pointData, degrees, radius, arcData } = this.state;
+    const { pointData, degrees, arcData } = this.state;
 
     return (
       <ScrollView contentContainerStyle={styles.container}>
@@ -113,12 +141,6 @@ class Gradient extends Component {
                 <Stop offset="0" stopColor="#777" stopOpacity="1" />
                 <Stop offset="1" stopColor="#f74902" stopOpacity="1" />
               </LinearGradient>
-
-              {arcData &&
-                <ClipPath id={'angle'}>
-                  <Path d={arcData} />
-                </ClipPath>
-              }
             </Defs>
 
             {/*Gradient*/}
@@ -127,15 +149,7 @@ class Gradient extends Component {
             {/*Arc*/}
             {arcData &&
               <G>
-                <Circle
-                  cx={radius}
-                  cy={radius}
-                  r={radius}
-                  stroke="#fff"
-                  strokeWidth="10"
-                  fill="rgba(255, 255, 255, 0.3)"
-                  clipPath={'url(#angle)'}
-                  key={this.arcKey++} />
+                <AnimatedArc data={arcData} key={this.arcKey++}/>
               </G>
             }
 
@@ -147,6 +161,7 @@ class Gradient extends Component {
               fill="white"
             />
 
+            {/*YAxis*/}
             <Line
               x1="0"
               y1="0"
@@ -156,6 +171,7 @@ class Gradient extends Component {
               stroke="rgba(255, 255, 255, 0.4)"
               strokeWidth="5" />
 
+            {/*X-Axis*/}
             <Line
               x1="0"
               y1="0"
