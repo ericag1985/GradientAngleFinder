@@ -28,6 +28,17 @@ class Gradient extends Component {
   gradientKey = 0;
   arcKey = 0;
 
+  positivifyDegrees = (degrees) => {
+    var results = 0;
+    if (degrees < 0) {
+      results = degrees + 360;
+    } else {
+      results = degrees;
+    }
+
+    return results
+  };
+
   calculateArcPoint = (centerX, centerY, radius, angleInDegrees) => {
     const angleInRadians = (angleInDegrees-90) * Math.PI / 180.0;
     const x = Math.floor(centerX + (radius * Math.cos(angleInRadians)));
@@ -42,8 +53,8 @@ class Gradient extends Component {
     const degrees = Math.floor(Math.atan2(pointData.ey - pointData.sy, pointData.ex - pointData.sx) * 180 / Math.PI);
 
     this.setState({
-      degrees: degrees
-    }, this.getArcData(125, 125, this.state.radius, 0, degrees))
+      degrees: this.positivifyDegrees(degrees)
+    }, this.getArcData(125, 125, this.state.radius, 0, this.state.degrees))
   };
 
   // Gets the path of the circle
@@ -73,7 +84,7 @@ class Gradient extends Component {
         ...prevState.pointData,
         ...data
       }
-    }), this.calcDegrees)
+    }), this.calcDegrees);
   };
 
   handleUpdateDegreeState = (data) => {
