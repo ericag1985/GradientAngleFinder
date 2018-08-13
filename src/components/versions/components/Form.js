@@ -43,8 +43,8 @@ class Form extends Component {
             <Text style={styles.label}>X Axis</Text>
             <NumericInput
               rounded
-              minValue={-359}
-              maxValue={359}
+              minValue={0}
+              maxValue={250}
               valueType='real'
               value={this.props.sx}
               leftButtonBackgroundColor={'#777'}
@@ -62,8 +62,8 @@ class Form extends Component {
             <Text style={styles.label}>Y Axis</Text>
             <NumericInput
               rounded
-              minValue={-359}
-              maxValue={359}
+              minValue={0}
+              maxValue={250}
               valueType='real'
               value={this.props.sy}
               leftButtonBackgroundColor={'#777'}

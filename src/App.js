@@ -9,9 +9,8 @@
 import React, {Component} from 'react';
 import {StyleSheet, View} from 'react-native';
 import Header from './components/Header';
+import Gradient_AnimatedArc from './components/versions/Gradient_withConstantAnimation';
 import Gradient from './components/versions/Gradient';
-import GradientWithForm from './components/versions/Gradient_withForm';
-
 
 type Props = {};
 
@@ -21,8 +20,8 @@ export default class App extends Component<Props> {
       <View style={styles.container}>
         <Header />
 
-        {/*<Gradient />*/}
-        <GradientWithForm />
+        <Gradient />
+        {/*<Gradient_Animated />*/}
       </View>
     );
   }
