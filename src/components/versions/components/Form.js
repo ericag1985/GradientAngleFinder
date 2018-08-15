@@ -77,8 +77,6 @@ class Form extends Component {
               } />
           </View>
         </View>
-
-        {/*<Text>The end point is locked at x: 180, y: 0 to give us the center of the arc at the center of the axes.</Text>*/}
       </View>
     );
   }

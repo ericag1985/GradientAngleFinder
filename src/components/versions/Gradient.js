@@ -1,12 +1,10 @@
 import React, {Component} from 'react';
 
-import {StyleSheet, Animated, Easing, ScrollView} from 'react-native';
-import Svg, { Circle, Path, Line, LinearGradient, Defs, Rect, Stop, ClipPath, G} from 'react-native-svg';
+import {StyleSheet, Animated, View} from 'react-native';
+import Svg, { Line, LinearGradient, Defs, Rect, Stop, G, Circle } from 'react-native-svg';
+import Draggable from 'react-native-draggable';
 import Form from "./components/Form";
-import Arc from './components/AnimatedArc';
-
-// Path is from react-native-svg not react-native, so we need this for animation.
-const AnimatedArc = Animated.createAnimatedComponent(Arc);
+import Arc from './components/Arc';
 
 class Gradient extends Component {
   constructor() {
@@ -22,7 +20,7 @@ class Gradient extends Component {
         ey: 0
       },
       arcData: null,
-      animValue: new Animated.Value(0.1)
+      pan: new Animated.ValueXY()
     };
   }
 
@@ -30,25 +28,6 @@ class Gradient extends Component {
   gradientKey = 0;
   arcKey = 0;
 
-  // TODO: Get animation to work...
-  // resetAnimation = () => {
-  //   this.state.animValue.setValue(0.1);
-  // };
-  //
-  // animate = () =>{
-  //   Animated.timing(
-  //     this.state.animValue,
-  //     {
-  //       toValue: 2,
-  //       duration: 2000,
-  //       easing: Easing.inOut(Easing.quad)
-  //     }
-  //   ).start(()=>{
-  //     setTimeout(this.resetAnimation, 2000);
-  //   });
-  // };
-
-  // TODO: Might need to readjust this when we want to get negative gradient angles works(?)
   positivifyDegrees = (degrees) => {
     var results = 0;
     if (degrees < 0) {
@@ -71,7 +50,7 @@ class Gradient extends Component {
   calcDegrees = () => {
     const { pointData } = this.state;
     // Floor to get a whole number for the "css"
-    // TODO: Need this to be 360 instead of 180 to get correct degrees when using AXIS inputs... verify with Leigh on math...
+    // Need to use 360 instead of 180 because we are calculating for a circle, not just line.
     const degrees = Math.floor(Math.atan2(pointData.ey - pointData.sy, pointData.ex - pointData.sx) * 360 / Math.PI);
 
     this.setState({
@@ -103,7 +82,7 @@ class Gradient extends Component {
         sy: sy,
       },
       arcData: data
-    }), this.animate);
+    }));
   };
 
   handleUpdatePointState = (data) => {
@@ -121,11 +100,15 @@ class Gradient extends Component {
     }, this.getArcData(125, 125, this.state.radius, 0, data, true))
   };
 
+  handleDragRelease = () => {
+    console.log('entered');
+  };
+
   render() {
     const { pointData, degrees, arcData } = this.state;
 
     return (
-      <ScrollView contentContainerStyle={styles.container}>
+      <View contentContainerStyle={styles.container}>
         <Animated.View style={[styles.gradientContainer]}>
           <Svg
             height="250"
@@ -149,17 +132,25 @@ class Gradient extends Component {
             {/*Arc*/}
             {arcData &&
               <G>
-                <AnimatedArc data={arcData} key={this.arcKey++}/>
+                <Arc data={arcData} key={this.arcKey++}/>
               </G>
             }
 
             {/*Angle Indicator*/}
-            <Circle
-              cx={pointData.sx}
-              cy={pointData.sy}
-              r="5"
-              fill="white"
-            />
+            <Draggable
+              renderSize={10}
+              renderColor='white'
+              x={115}
+              y={0}
+              reverse={false}
+              renderText='A'
+              pressDragRelease={this.handleDragRelease}/>
+
+            {/*<Circle*/}
+              {/*cx={pointData.sx}*/}
+              {/*cy={pointData.sy}*/}
+              {/*r="10"*/}
+              {/*fill="white" />*/}
 
             {/*YAxis*/}
             <Line
@@ -190,7 +181,7 @@ class Gradient extends Component {
           updatePointState={this.handleUpdatePointState}
           updateDegreeState={this.handleUpdateDegreeState}
         />
-      </ScrollView>
+      </View>
     );
   }
 }
@@ -205,7 +196,8 @@ const styles = StyleSheet.create({
   gradientContainer: {
     position: "relative",
     justifyContent: 'center',
-    alignItems: "center"
+    alignItems: "center",
+    marginTop: 20
   },
   gradient: {
     height: 250,
