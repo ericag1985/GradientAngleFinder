@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 
 import {StyleSheet, Animated, View} from 'react-native';
 import Svg, { Line, LinearGradient, Defs, Rect, Stop, G, Circle } from 'react-native-svg';
-import Draggable from 'react-native-draggable';
+import Draggable from './components/Draggable';
 import Form from "./components/Form";
 import Arc from './components/Arc';
 
@@ -100,8 +100,10 @@ class Gradient extends Component {
     }, this.getArcData(125, 125, this.state.radius, 0, data, true))
   };
 
-  handleDragRelease = () => {
-    console.log('entered');
+  handleDragRelease = (e, gestureState) => {
+    console.log('movex', gestureState.moveX, 'dx', gestureState.dx, 'vx', gestureState.vx, 'x0', gestureState.x0);
+    console.log('movey', gestureState.moveY, 'dy', gestureState.dy, 'vy', gestureState.vy, 'y0', gestureState.y0);
+    console.log(e.nativeEvent.pageX, e.nativeEvent.pageY);
   };
 
   render() {
@@ -140,17 +142,11 @@ class Gradient extends Component {
             <Draggable
               renderSize={10}
               renderColor='white'
-              x={115}
-              y={0}
+              x={pointData.sx}
+              y={pointData.sy}
               reverse={false}
               renderText='A'
               pressDragRelease={this.handleDragRelease}/>
-
-            {/*<Circle*/}
-              {/*cx={pointData.sx}*/}
-              {/*cy={pointData.sy}*/}
-              {/*r="10"*/}
-              {/*fill="white" />*/}
 
             {/*YAxis*/}
             <Line
