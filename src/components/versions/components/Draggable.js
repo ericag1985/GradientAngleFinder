@@ -58,14 +58,16 @@ export default class Draggable extends Component {
     if(this.props.reverse == false)
       this.state.pan.addListener((c) => this.state._value = c);
   }
+
   componentWillUnmount() {
     this.state.pan.removeAllListeners();
   }
+
   constructor(props, defaultProps) {
     super(props, defaultProps);
     const { pressDragRelease, reverse, onMove } = props;
     this.state = {
-      pan:new Animated.ValueXY(),
+      pan:new Animated.ValueXY({x: 125, y: 125}),
       _value:{x: 0, y: 0}
     };
 
@@ -78,13 +80,13 @@ export default class Draggable extends Component {
           this.state.pan.setValue({x: 0, y: 0});
         }
       },
-      onPanResponderMove: (e, gestureState) => {Animated.event([null,{
+      onPanResponderMove: Animated.event([null,{
         dx:this.state.pan.x,
         dy:this.state.pan.y
-      }], {listener: onMove})},
+      }], {listener: onMove}),
       onPanResponderRelease: (e, gestureState) => {
         if(pressDragRelease)
-          pressDragRelease(e, gestureState);
+          pressDragRelease(e, gestureState, this.state.pan);
         if(reverse == false)
           this.state.pan.flattenOffset();
         else
@@ -136,6 +138,7 @@ export default class Draggable extends Component {
       };
     }
   }
+
   _dragItemTextCss = () => {
     const { renderSize } = this.props;
     return {
@@ -146,6 +149,7 @@ export default class Draggable extends Component {
       color: '#fff'
     };
   }
+
   _getTextOrImage = () => {
     const { renderSize, renderShape, renderText, imageSource } = this.props;
     if(renderShape == 'image') {
@@ -159,7 +163,7 @@ export default class Draggable extends Component {
   reversePosition = () => {
     Animated.spring(
       this.state.pan,
-      {toValue:{x:0,y:0}}
+      {toValue:{x: 0, y: 0}}
     ).start();
   }
 
@@ -177,8 +181,7 @@ export default class Draggable extends Component {
             onPress={pressDrag}
             onLongPress={longPressDrag}
             onPressIn={pressInDrag}
-            onPressOut={pressOutDrag}
-          >
+            onPressOut={pressOutDrag}>
             {touchableContent}
           </TouchableOpacity>
         </Animated.View>

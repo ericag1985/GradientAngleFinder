@@ -14,13 +14,12 @@ class Gradient extends Component {
       radius: 125,
       degrees: 0,
       pointData: {
-        sx: 125,
+        sx: 0,
         sy: 0,
         ex: 125,
         ey: 0
       },
-      arcData: null,
-      pan: new Animated.ValueXY()
+      arcData: null
     };
   }
 
@@ -38,6 +37,7 @@ class Gradient extends Component {
 
     return results
   };
+  
 
   calculateArcPoint = (centerX, centerY, radius, angleInDegrees) => {
     const angleInRadians = (angleInDegrees-90) * Math.PI / 180.0;
@@ -100,14 +100,23 @@ class Gradient extends Component {
     }, this.getArcData(125, 125, this.state.radius, 0, data, true))
   };
 
-  handleDragRelease = (e, gestureState) => {
-    console.log('movex', gestureState.moveX, 'dx', gestureState.dx, 'vx', gestureState.vx, 'x0', gestureState.x0);
-    console.log('movey', gestureState.moveY, 'dy', gestureState.dy, 'vy', gestureState.vy, 'y0', gestureState.y0);
-    console.log(e.nativeEvent.pageX, e.nativeEvent.pageY);
+  handleDragRelease = (e, gestureState, panState) => {
+    const newX = Math.floor(panState.x._value + panState.x._startingValue);
+    const newY = Math.floor(panState.y._value + panState.y._startingValue);
+
+    this.setState((prevState) => ({
+      pointData: {
+        ...prevState.pointData,
+        sx: newX,
+        sy: newY
+      }
+    }), this.calcDegrees);
   };
+
 
   render() {
     const { pointData, degrees, arcData } = this.state;
+    console.log(pointData);
 
     return (
       <View contentContainerStyle={styles.container}>
@@ -141,7 +150,7 @@ class Gradient extends Component {
             {/*Angle Indicator*/}
             <Draggable
               renderSize={10}
-              renderColor='white'
+              renderColor='black'
               x={pointData.sx}
               y={pointData.sy}
               reverse={false}
