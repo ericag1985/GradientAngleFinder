@@ -6,6 +6,9 @@ Small demo using react-native to find the angle of a gradient.
 
 **This project requires JDK8. If you have a higher version, be sure to apply to proper JDK in the project structure.**
 
+You must have the react-native-cli to run this app. If you do not, run a `npm install -g react-native-cli` in your terminal to get it.
+
+
 ### To Run:
 * Clone repo
 * CD into repo folder
