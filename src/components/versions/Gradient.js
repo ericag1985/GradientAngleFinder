@@ -37,7 +37,7 @@ class Gradient extends Component {
 
     return results
   };
-  
+
 
   calculateArcPoint = (centerX, centerY, radius, angleInDegrees) => {
     const angleInRadians = (angleInDegrees-90) * Math.PI / 180.0;
@@ -55,7 +55,7 @@ class Gradient extends Component {
 
     this.setState({
       degrees: this.positivifyDegrees(degrees)
-    }, this.getArcData(125, 125, this.state.radius, 0, this.state.degrees, false))
+  }, ()=>this.getArcData(125, 125, this.state.radius, 0, this.state.degrees, false))
   };
 
   // Gets the path of the arc
@@ -76,11 +76,6 @@ class Gradient extends Component {
     ].join(" ");
 
     this.setState((prevState) => ({
-      pointData: {
-        ...prevState.pointData,
-        sx: sx,
-        sy: sy,
-      },
       arcData: data
     }));
   };
@@ -100,15 +95,12 @@ class Gradient extends Component {
     }, this.getArcData(125, 125, this.state.radius, 0, data, true))
   };
 
-  handleDragRelease = (e, gestureState, panState) => {
-    const newX = Math.floor(panState.x._value + panState.x._startingValue);
-    const newY = Math.floor(panState.y._value + panState.y._startingValue);
-
+  handleDragRelease = (panState, val) => {
     this.setState((prevState) => ({
       pointData: {
         ...prevState.pointData,
-        sx: newX,
-        sy: newY
+        sx: Math.floor(val.x),
+        sy: Math.floor(val.y)
       }
     }), this.calcDegrees);
   };
@@ -116,7 +108,6 @@ class Gradient extends Component {
 
   render() {
     const { pointData, degrees, arcData } = this.state;
-    console.log(pointData);
 
     return (
       <View contentContainerStyle={styles.container}>
@@ -153,8 +144,7 @@ class Gradient extends Component {
               renderColor='black'
               x={pointData.sx}
               y={pointData.sy}
-              reverse={false}
-              renderText='A'
+              renderText='&#8226;'
               pressDragRelease={this.handleDragRelease}/>
 
             {/*YAxis*/}
