@@ -1,10 +1,10 @@
 import React, {Component} from 'react';
 
 import {StyleSheet, Animated, View} from 'react-native';
-import Svg, { Line, LinearGradient, Defs, Rect, Stop, G, Circle } from 'react-native-svg';
-import Draggable from './components/Draggable';
-import Form from "./components/Form";
-import Arc from './components/Arc';
+import Svg, { Line, LinearGradient, Defs, Rect, Stop, G } from 'react-native-svg';
+import Draggable from './Draggable';
+import Form from "./Form";
+import Arc from './Arc';
 
 class Gradient extends Component {
   constructor() {
@@ -55,7 +55,7 @@ class Gradient extends Component {
 
     this.setState({
       degrees: this.positivifyDegrees(degrees)
-  }, ()=>this.getArcData(125, 125, this.state.radius, 0, this.state.degrees, false))
+  }, () => this.getArcData(125, 125, this.state.radius, 0, this.state.degrees, false))
   };
 
   // Gets the path of the arc
@@ -90,9 +90,16 @@ class Gradient extends Component {
   };
 
   handleUpdateDegreeState = (data) => {
-    this.setState({
-      degrees: data
-    }, this.getArcData(125, 125, this.state.radius, 0, data, true))
+    const point = this.calculateArcPoint(125, 125, this.state.radius, data);
+
+    this.setState((prevState) => ({
+      degrees: data,
+      pointData: {
+        ...prevState.pointData,
+        sx: point.x,
+        sy: point.y
+      }
+    }), this.getArcData(125, 125, this.state.radius, 0, data, true))
   };
 
   handleDragRelease = (panState, val) => {

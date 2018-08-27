@@ -9,19 +9,15 @@
 import React, {Component} from 'react';
 import {StyleSheet, View} from 'react-native';
 import Header from './components/Header';
-import Gradient_AnimatedArc from './components/versions/Gradient_withConstantAnimation';
-import Gradient from './components/versions/Gradient';
+import Gradient from './components/Gradient';
 
-type Props = {};
-
-export default class App extends Component<Props> {
+export default class App extends Component {
   render() {
     return (
       <View style={styles.container}>
         <Header />
 
         <Gradient />
-        {/*<Gradient_Animated />*/}
       </View>
     );
   }
