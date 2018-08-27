@@ -34,13 +34,12 @@ export default class Draggable extends Component {
 			},
 
 			onPanResponderMove: Animated.event([
-					null, {
-						dx: this.state.pan.x,
-						dy: this.state.pan.y
-					}
-				], {listener: onMove}),
+				null, {
+					dx: this.state.pan.x,
+					dy: this.state.pan.y
+				}
+			], {listener: onMove}),
 			onPanResponderRelease: (e, gestureState) => {
-				console.log(this.state._value.x, this.state._value.y);
 				// Limiting drag zone to gradient
 				if ((this.state._value.x >= 0 && this.state._value.x <= 250) && (this.state._value.y >= 0 && this.state._value.y <= 250)) {
 					if (pressDragRelease) {

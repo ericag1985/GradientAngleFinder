@@ -33,7 +33,6 @@ Small demo using react-native to find the angle of a gradient.
 **Note: There is an issue with the react-native-number-input where you can not currently type in negative numbers. An [issue](https://github.com/himelbrand/react-native-numeric-input/issues/8) has been submitted for this.**
 
 #### TODOs:
-* Limit drag/drop to gradient box
+* Get correct radius give x movement
 * Allow negative degree motion
-* Add Color pickers to update gradient colors (?)
 
