@@ -34,19 +34,38 @@ export default class Draggable extends Component {
 			},
 
 			onPanResponderMove: Animated.event([
-				null, {
-					dx: this.state.pan.x,
-					dy: this.state.pan.y
-				}
-			], {listener: onMove}),
+					null, {
+						dx: this.state.pan.x,
+						dy: this.state.pan.y
+					}
+				], {listener: onMove}),
 			onPanResponderRelease: (e, gestureState) => {
-				if (pressDragRelease)
-					pressDragRelease(this.state.pan, this.state._value);
-				this.state.pan.flattenOffset();
+				console.log(this.state._value.x, this.state._value.y);
+				// Limiting drag zone to gradient
+				if ((this.state._value.x >= 0 && this.state._value.x <= 250) && (this.state._value.y >= 0 && this.state._value.y <= 250)) {
+					if (pressDragRelease) {
+						pressDragRelease(this.state.pan, this.state._value);
+						this.state.pan.flattenOffset();
+					}
+				} else {
+					this.reversePosition();
+				}
 			}
 		});
 	}
-	componentWillReceiveProps(nP) {
+
+  reversePosition = () => {
+    Animated.spring(this.state.pan,
+      {
+      	toValue: {
+					x: 0,
+					y: 0
+				}
+      }
+    ).start();
+  };
+
+  componentWillReceiveProps(nP) {
 		Animated.spring(this.state.pan, {
 			toValue: {
 				x,
@@ -54,6 +73,7 @@ export default class Draggable extends Component {
 			} = nP
 		}).start();
 	}
+
 	componentWillMount() {
 		this.state.pan.addListener((c) => this.state._value = c);
 	}
@@ -94,7 +114,6 @@ export default class Draggable extends Component {
 		};
 	}
 
-
 	render() {
 		return (<View style={{zIndex: 1000, position: 'absolute'}}>
 			<Animated.View {...this.panResponder.panHandlers} style={this.state.pan.getLayout()}>
@@ -104,6 +123,7 @@ export default class Draggable extends Component {
 			</Animated.View>
 		</View>);
 	}
+
 	static propTypes = {
 		renderText: PropTypes.string,
 		renderShape: PropTypes.string,
